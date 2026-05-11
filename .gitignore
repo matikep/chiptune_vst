@@ -1,0 +1,19 @@
+.DS_Store
+build/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Native build artifacts
+*.a
+*.d
+*.dSYM/
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+
