@@ -22,9 +22,14 @@ void OscilloscopeComponent::refresh()
 void OscilloscopeComponent::paint(juce::Graphics& g)
 {
     auto b = getLocalBounds().toFloat();
-    g.fillAll(GBC::bg);
+    g.fillAll(GBC::ink);
     g.setColour(GBC::dark);
     g.drawRect(b, 1.0f);
+    g.setColour(GBC::dark.withAlpha(0.55f));
+    for (int i = 1; i < 6; ++i) {
+        float x = b.getX() + b.getWidth() * (float)i / 6.0f;
+        g.drawVerticalLine((int)x, b.getY(), b.getBottom());
+    }
     g.drawHorizontalLine((int)b.getCentreY(), b.getX(), b.getRight());
 
     int w = (int)displayBuffer.size();
@@ -36,8 +41,8 @@ void OscilloscopeComponent::paint(juce::Graphics& g)
         y = std::clamp(y, b.getY() + 1.f, b.getBottom() - 1.f);
         if (i == 0) path.startNewSubPath(x, y); else path.lineTo(x, y);
     }
-    g.setColour(GBC::mid.withAlpha(0.4f));
-    g.strokePath(path, juce::PathStrokeType(3.0f));
+    g.setColour(GBC::accent.withAlpha(0.32f));
+    g.strokePath(path, juce::PathStrokeType(5.0f));
     g.setColour(GBC::bright);
     g.strokePath(path, juce::PathStrokeType(1.5f));
 }
@@ -65,13 +70,13 @@ void WaveTableEditor::mouseDrag(const juce::MouseEvent& e) { setFromMouse(e); }
 void WaveTableEditor::paint(juce::Graphics& g)
 {
     auto b  = getLocalBounds().toFloat();
-    g.fillAll(GBC::bg);
+    g.fillAll(GBC::ink);
     g.setColour(GBC::dark);
     g.drawRect(b, 1.0f);
     float bw = b.getWidth() / 32.0f;
     for (int i = 0; i < 32; ++i) {
         float h = (waveTable[(size_t)i] / 15.0f) * b.getHeight();
-        g.setColour(i % 2 == 0 ? GBC::mid : GBC::bright);
+        g.setColour(i % 2 == 0 ? GBC::accent : GBC::bright);
         g.fillRect(i * bw + 1.0f, b.getHeight() - h, bw - 1.5f, h);
     }
 }
@@ -81,25 +86,25 @@ void WaveTableEditor::paint(juce::Graphics& g)
 // ─────────────────────────────────────────────────────────────────────────────
 GBLookAndFeel::GBLookAndFeel()
 {
-    setColour(juce::Slider::thumbColourId,                GBC::bright);
-    setColour(juce::Slider::rotarySliderFillColourId,     GBC::mid);
+    setColour(juce::Slider::thumbColourId,                GBC::accent);
+    setColour(juce::Slider::rotarySliderFillColourId,     GBC::bright);
     setColour(juce::Slider::rotarySliderOutlineColourId,  GBC::dark);
-    setColour(juce::Slider::textBoxTextColourId,          GBC::mid);
-    setColour(juce::Slider::textBoxBackgroundColourId,    GBC::bg);
+    setColour(juce::Slider::textBoxTextColourId,          GBC::accent);
+    setColour(juce::Slider::textBoxBackgroundColourId,    GBC::ink);
     setColour(juce::Slider::textBoxOutlineColourId,       GBC::dark);
     setColour(juce::Label::textColourId,                  GBC::bright);
-    setColour(juce::TextButton::buttonColourId,           GBC::bg);
+    setColour(juce::TextButton::buttonColourId,           GBC::panel);
     setColour(juce::TextButton::buttonOnColourId,         GBC::dark);
-    setColour(juce::TextButton::textColourOffId,          GBC::mid);
+    setColour(juce::TextButton::textColourOffId,          GBC::accent);
     setColour(juce::TextButton::textColourOnId,           GBC::bright);
     setColour(juce::ToggleButton::textColourId,           GBC::bright);
     setColour(juce::ToggleButton::tickColourId,           GBC::bright);
     setColour(juce::ToggleButton::tickDisabledColourId,   GBC::dark);
-    setColour(juce::ComboBox::backgroundColourId,         GBC::bg);
+    setColour(juce::ComboBox::backgroundColourId,         GBC::ink);
     setColour(juce::ComboBox::outlineColourId,            GBC::dark);
     setColour(juce::ComboBox::textColourId,               GBC::bright);
     setColour(juce::ComboBox::arrowColourId,              GBC::mid);
-    setColour(juce::PopupMenu::backgroundColourId,        GBC::bg);
+    setColour(juce::PopupMenu::backgroundColourId,        GBC::ink);
     setColour(juce::PopupMenu::textColourId,              GBC::bright);
     setColour(juce::PopupMenu::highlightedBackgroundColourId, GBC::dark);
     setColour(juce::PopupMenu::highlightedTextColourId,   GBC::bright);
@@ -111,7 +116,7 @@ void GBLookAndFeel::drawRotarySlider(juce::Graphics& g,
     float rad = juce::jmin(w, h) * 0.40f;
     float cx  = x + w * 0.5f, cy = y + h * 0.5f;
 
-    g.setColour(GBC::bg);
+    g.setColour(GBC::ink);
     g.fillEllipse(cx-rad, cy-rad, rad*2, rad*2);
     g.setColour(GBC::dark);
     g.drawEllipse(cx-rad, cy-rad, rad*2, rad*2, 2.f);
@@ -119,20 +124,22 @@ void GBLookAndFeel::drawRotarySlider(juce::Graphics& g,
     // Track arc
     juce::Path track;
     track.addArc(cx-rad+2, cy-rad+2, (rad-2)*2, (rad-2)*2, rotStart, rotEnd, true);
-    g.setColour(GBC::dark.brighter(0.3f));
+    g.setColour(GBC::dark.brighter(0.15f));
     g.strokePath(track, juce::PathStrokeType(2.f));
 
     // Value arc
     float angle = rotStart + pos * (rotEnd - rotStart);
     juce::Path val;
     val.addArc(cx-rad+2, cy-rad+2, (rad-2)*2, (rad-2)*2, rotStart, angle, true);
+    g.setColour(GBC::accent.withAlpha(0.28f));
+    g.strokePath(val, juce::PathStrokeType(5.0f));
     g.setColour(GBC::bright);
-    g.strokePath(val, juce::PathStrokeType(2.5f));
+    g.strokePath(val, juce::PathStrokeType(2.0f));
 
     // Pointer dot
     float px = cx + (rad-5) * std::cos(angle - juce::MathConstants<float>::halfPi);
     float py = cy + (rad-5) * std::sin(angle - juce::MathConstants<float>::halfPi);
-    g.setColour(GBC::accent);
+    g.setColour(GBC::hot);
     g.fillEllipse(px-3, py-3, 6, 6);
 }
 
@@ -140,9 +147,9 @@ void GBLookAndFeel::drawButtonBackground(juce::Graphics& g, juce::Button& btn,
     const juce::Colour&, bool hl, bool dn)
 {
     auto b = btn.getLocalBounds().toFloat().reduced(1.f);
-    g.setColour(btn.getToggleState() ? GBC::dark : (hl||dn ? GBC::dark.brighter(0.1f) : GBC::bg));
+    g.setColour(btn.getToggleState() ? GBC::dark : (hl||dn ? GBC::dark.brighter(0.1f) : GBC::panel));
     g.fillRoundedRectangle(b, 3.f);
-    g.setColour(GBC::dark);
+    g.setColour(btn.getToggleState() ? GBC::bright : GBC::dark);
     g.drawRoundedRectangle(b, 3.f, 1.5f);
 }
 
@@ -150,12 +157,12 @@ void GBLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleButton& btn,
 {
     auto b = btn.getLocalBounds().toFloat().reduced(1.f);
     bool on = btn.getToggleState();
-    g.setColour(on ? GBC::dark : GBC::bg);
+    g.setColour(on ? GBC::dark : GBC::panel);
     g.fillRoundedRectangle(b, 3.f);
-    g.setColour(on ? GBC::bright : GBC::dark);
+    g.setColour(on ? GBC::hot : GBC::dark);
     g.drawRoundedRectangle(b, 3.f, 1.5f);
     g.setFont(juce::Font(juce::FontOptions().withHeight(9.5f)));
-    g.setColour(on ? GBC::bright : GBC::mid);
+    g.setColour(on ? GBC::bright : GBC::accent);
     g.drawText(btn.getButtonText(), btn.getLocalBounds(), juce::Justification::centred);
 }
 
@@ -167,19 +174,19 @@ juce::Font GBLookAndFeel::getLabelFont(juce::Label&)
 void GBLookAndFeel::drawComboBox(juce::Graphics& g, int w, int h, bool,
     int,int,int,int, juce::ComboBox&)
 {
-    g.fillAll(GBC::bg);
+    g.fillAll(GBC::ink);
     g.setColour(GBC::dark);
     g.drawRect(0, 0, w, h, 1);
     juce::Path arrow;
     arrow.addTriangle((float)w-12, (float)h*0.35f, (float)w-4, (float)h*0.35f,
                       (float)w-8, (float)h*0.65f);
-    g.setColour(GBC::mid);
+    g.setColour(GBC::hot);
     g.fillPath(arrow);
 }
 
 void GBLookAndFeel::drawPopupMenuBackground(juce::Graphics& g, int w, int h)
 {
-    g.fillAll(GBC::bg);
+    g.fillAll(GBC::ink);
     g.setColour(GBC::dark);
     g.drawRect(0, 0, w, h, 1);
 }
@@ -191,12 +198,21 @@ static void makeKnob(juce::Slider& s, juce::Label& lbl,
                      const char* text, juce::Component* parent)
 {
     s.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    s.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 42, 11);
+    s.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 54, 13);
     s.setNumDecimalPlacesToDisplay(3);
+    s.textFromValueFunction = [](double v) {
+        if (std::abs(v) >= 100.0)
+            return juce::String((int)std::round(v));
+        if (std::abs(v) >= 10.0)
+            return juce::String(v, 1);
+        if (std::abs(v) >= 1.0)
+            return juce::String(v, 2);
+        return juce::String(v, 3);
+    };
     parent->addAndMakeVisible(s);
 
     lbl.setText(text, juce::dontSendNotification);
-    lbl.setFont(juce::Font(juce::FontOptions().withHeight(9.5f)));
+    lbl.setFont(juce::Font(juce::FontOptions().withHeight(10.5f).withStyle("Bold")));
     lbl.setJustificationType(juce::Justification::centred);
     parent->addAndMakeVisible(lbl);
     // NOTE: no attachToComponent — caller positions label manually
@@ -273,7 +289,7 @@ ChiptuneVSTEditor::ChiptuneVSTEditor(ChiptuneVSTProcessor& p)
     const char* dutyNames[] = { "12.5%","25%","50%","75%" };
     for (int i = 0; i < 4; ++i) {
         dutyBtn[i].setButtonText(dutyNames[i]);
-        dutyBtn[i].onClick = [this, i, &apvts] {
+        dutyBtn[i].onClick = [i, &apvts] {
             apvts.getParameter("duty")->setValueNotifyingHost(
                 apvts.getParameter("duty")->convertTo0to1((float)i));
         };
@@ -345,12 +361,12 @@ ChiptuneVSTEditor::ChiptuneVSTEditor(ChiptuneVSTProcessor& p)
     // Spotify footer link
     shoushiLink.setButtonText("shoushi bit");
     shoushiLink.setURL(juce::URL("https://open.spotify.com/intl-es/artist/0ShkJFfceqTKxlBpenaATY"));
-    shoushiLink.setColour(juce::HyperlinkButton::textColourId, GBC::bright);
+    shoushiLink.setColour(juce::HyperlinkButton::textColourId, GBC::accent);
     addAndMakeVisible(shoushiLink);
 
     updateChannelVisibility();
     startTimerHz(20);
-    setSize(512, 630);
+    setSize(640, 740);
 }
 
 ChiptuneVSTEditor::~ChiptuneVSTEditor() { setLookAndFeel(nullptr); }
@@ -430,47 +446,58 @@ void ChiptuneVSTEditor::paint(juce::Graphics& g)
     g.fillAll(GBC::bg);
 
     auto hdr = [&](int y, int h, const char* txt) {
-        g.setColour(GBC::dark);
+        g.setColour(GBC::dark.withAlpha(0.82f));
         g.fillRect(0, y, getWidth(), h);
-        g.setColour(GBC::mid);
-        g.setFont(juce::Font(juce::FontOptions().withHeight(9.5f)));
-        g.drawText(txt, 8, y, getWidth()-16, h, juce::Justification::centredLeft);
+        g.setColour(GBC::hot.withAlpha(0.85f));
+        g.drawLine(0.0f, (float)y, (float)getWidth(), (float)y, 1.0f);
+        g.setColour(GBC::bright);
+        g.setFont(juce::Font(juce::FontOptions().withHeight(10.5f).withStyle("Bold")));
+        g.drawText(txt, 14, y, getWidth()-28, h, juce::Justification::centredLeft);
     };
 
     // Header bar
-    g.setColour(GBC::dark);
-    g.fillRect(0, 0, getWidth(), 26);
+    g.setColour(GBC::ink);
+    g.fillRect(0, 0, getWidth(), 38);
+    g.setColour(GBC::dark.withAlpha(0.7f));
+    for (int x = 0; x < getWidth(); x += 16)
+        g.drawVerticalLine(x, 0, 38);
+    g.setColour(GBC::hot);
+    g.drawLine(0, 37, (float)getWidth(), 37, 1.5f);
+    g.setColour(GBC::accent.withAlpha(0.55f));
+    g.drawLine(0, 34, (float)getWidth(), 34, 1.0f);
     g.setColour(GBC::bright);
-    g.setFont(juce::Font(juce::FontOptions().withHeight(13.f).withStyle("Bold")));
-    g.drawText("CHIPTUNE VST  //  DMG-01", 0, 0, getWidth(), 26, juce::Justification::centred);
-    g.setColour(GBC::mid);
-    g.drawLine(0, 26, (float)getWidth(), 26, 1.f);
+    g.setFont(juce::Font(juce::FontOptions().withHeight(17.f).withStyle("Bold")));
+    g.drawText("CHIPTUNE VST", 0, 2, getWidth(), 22, juce::Justification::centred);
+    g.setColour(GBC::accent);
+    g.setFont(juce::Font(juce::FontOptions().withHeight(9.5f)));
+    g.drawText("DMG-01 / CYBERDECK", 0, 21, getWidth(), 13, juce::Justification::centred);
 
-    hdr(26,  13, "PRESET");
-    hdr(100, 13, "CHANNEL");
-    hdr(150, 13, "OSCILLOSCOPE");
-    hdr(210, 13, "ENVELOPE  +  VOLUME");
+    hdr(44,  16, "PRESET");
+    hdr(110, 16, "CHANNEL");
+    hdr(162, 16, "OSCILLOSCOPE");
+    hdr(246, 16, "ENVELOPE + VOLUME");
 
     int ch = (int)*proc.apvts.getRawParameterValue("channelType");
 
     if (ch == 0 || ch == 1) {
-        hdr(296, 13, "DUTY CYCLE");
-        hdr(338, 13, ch == 0 ? "VIBRATO  /  PWM  /  SWEEP" : "VIBRATO  /  PWM");
+        hdr(360, 16, "DUTY CYCLE");
+        hdr(416, 16, ch == 0 ? "VIBRATO / PWM / SWEEP" : "VIBRATO / PWM");
     }
-    if (ch == 2) hdr(296, 13, "WAVE TABLE  —  draw with mouse");
-    if (ch == 3) hdr(296, 13, "NOISE CHANNEL");
+    if (ch == 2) hdr(360, 16, "WAVE TABLE - DRAW WITH MOUSE");
+    if (ch == 3) hdr(360, 16, "NOISE CHANNEL");
 
-    hdr(arpY,    13, "ARPEGGIATOR");
-    hdr(arpY+84, 13, "FX  —  BITCRUSH  /  SATURATION");
+    hdr(arpY,    16, "ARPEGGIATOR");
+    hdr(arpY+94, 16, "FX - BITCRUSH / SATURATION");
 
     // Footer
-    int fy = getHeight() - 20;
-    g.setColour(GBC::dark);
-    g.fillRect(0, fy, getWidth(), 20);
-    g.setColour(GBC::mid);
+    int fy = getHeight() - 24;
+    g.setColour(GBC::ink);
+    g.fillRect(0, fy, getWidth(), 24);
+    g.setColour(GBC::hot);
     g.drawLine(0.f, (float)fy, (float)getWidth(), (float)fy, 1.f);
-    g.setFont(juce::Font(juce::FontOptions().withHeight(9.5f)));
-    g.drawText("powered by mkep.dev  /", 8, fy, 148, 20, juce::Justification::centredLeft);
+    g.setColour(GBC::mid);
+    g.setFont(juce::Font(juce::FontOptions().withHeight(10.0f)));
+    g.drawText("powered by mkep.dev /", 14, fy, 160, 24, juce::Justification::centredLeft);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -479,89 +506,85 @@ void ChiptuneVSTEditor::paint(juce::Graphics& g)
 void ChiptuneVSTEditor::resized()
 {
     const int W   = getWidth();
-    const int kW  = 46;   // knob slot width
-    const int kH  = 54;   // slider height (knob dial + textbox)
-    const int lH  = 12;   // label height
-    const int bH  = 22;   // button height
-    const int G   = 5;    // gap between knob slots
+    const int kW  = 58;   // knob slot width
+    const int kH  = 64;   // slider height (knob dial + textbox)
+    const int lH  = 14;   // label height
+    const int bH  = 28;   // button height
+    const int G   = 10;   // gap between knob slots
 
     // ── Preset bar ────────────────────────────────────────────────────────────
-    presetPrev.setBounds(8,   40, 26, 24);
-    presetBox .setBounds(38,  40, W-78, 24);
-    presetNext.setBounds(W-36,40, 26, 24);
+    presetPrev.setBounds(14,   66, 36, 30);
+    presetBox .setBounds(58,   66, W-116, 30);
+    presetNext.setBounds(W-50, 66, 36, 30);
 
     // ── Channel buttons ────────────────────────────────────────────────────────
-    int cw = (W-16)/4;
+    int cw = (W-34)/4;
     for (int i = 0; i < 4; ++i)
-        chBtn[i].setBounds(8 + i*(cw+2), 114, cw-1, 24);
+        chBtn[i].setBounds(14 + i*(cw+2), 132, cw-1, 30);
 
     // ── Oscilloscope ───────────────────────────────────────────────────────────
-    osc->setBounds(8, 164, W-16, 40);
+    osc->setBounds(14, 190, W-28, 42);
 
     // ── ADSR + Vol ─────────────────────────────────────────────────────────────
-    int envLy = 224;
-    placeKnob(atkSlider, atkLabel, 8 + 0*(kW+G), envLy, kW, kH, lH);
-    placeKnob(decSlider, decLabel, 8 + 1*(kW+G), envLy, kW, kH, lH);
-    placeKnob(susSlider, susLabel, 8 + 2*(kW+G), envLy, kW, kH, lH);
-    placeKnob(relSlider, relLabel, 8 + 3*(kW+G), envLy, kW, kH, lH);
-    placeKnob(volSlider, volLabel, W-kW-8,        envLy, kW, kH, lH);
+    int envLy = 274;
+    placeKnob(atkSlider, atkLabel, 14 + 0*(kW+G), envLy, kW, kH, lH);
+    placeKnob(decSlider, decLabel, 14 + 1*(kW+G), envLy, kW, kH, lH);
+    placeKnob(susSlider, susLabel, 14 + 2*(kW+G), envLy, kW, kH, lH);
+    placeKnob(relSlider, relLabel, 14 + 3*(kW+G), envLy, kW, kH, lH);
+    placeKnob(volSlider, volLabel, W-kW-14,        envLy, kW, kH, lH);
 
-    // ── Channel-specific content (starts below y=286 header) ──────────────────
+    // ── Channel-specific content ──────────────────────────────────────────────
     int ch   = (int)*proc.apvts.getRawParameterValue("channelType");
-    int chY1 = 310;
+    int chY1 = 384;
 
     if (ch == 0 || ch == 1) {
         // Duty buttons
-        int dw = (W-16)/4;
+        int dw = (W-34)/4;
         for (int i = 0; i < 4; ++i)
-            dutyBtn[i].setBounds(8 + i*(dw+2), chY1, dw-1, bH);
+            dutyBtn[i].setBounds(14 + i*(dw+2), chY1, dw-1, bH);
 
-        // VIB / PWM / SWEEP row — packed left-to-right within W=512
-        int vy = chY1 + bH + 6 + 13 + lH;
-        int cx = 8;
+        // VIB / PWM / SWEEP row
+        int vy = 440;
+        int cx = 14;
         int vcy = vy + (kH - bH) / 2;  // vertical centre for buttons
 
-        vibOnBtn.setBounds(cx, vcy, 56, bH);              cx += 59;
-        placeKnob(vibRateSlider,  vibRateLbl,  cx, vy, kW, kH, lH); cx += kW + 3;
-        placeKnob(vibDepthSlider, vibDepthLbl, cx, vy, kW, kH, lH); cx += kW + 3;
-        placeKnob(vibDelaySlider, vibDelayLbl, cx, vy, kW, kH, lH); cx += kW + 5;
+        vibOnBtn.setBounds(cx, vcy, 68, bH);              cx += 74;
+        placeKnob(vibRateSlider,  vibRateLbl,  cx, vy, kW, kH, lH); cx += kW + 6;
+        placeKnob(vibDepthSlider, vibDepthLbl, cx, vy, kW, kH, lH); cx += kW + 6;
+        placeKnob(vibDelaySlider, vibDelayLbl, cx, vy, kW, kH, lH); cx += kW + 10;
 
-        pwmOnBtn.setBounds(cx, vcy, 42, bH);              cx += 45;
-        placeKnob(pwmRateSlider, pwmRateLbl, cx, vy, kW, kH, lH);   cx += kW + 5;
+        pwmOnBtn.setBounds(cx, vcy, 54, bH);              cx += 60;
+        placeKnob(pwmRateSlider, pwmRateLbl, cx, vy, kW, kH, lH);   cx += kW + 10;
 
         if (ch == 0) {
-            sweepOnBtn.setBounds(cx, vcy, 56, bH);        cx += 59;
-            sweepUpBtn.setBounds(cx, vcy, 32, bH);        cx += 35;
-            placeKnob(sweepRateSlider, sweepRateLbl, cx, vy, kW, kH, lH); cx += kW + 3;
+            sweepOnBtn.setBounds(cx, vcy, 72, bH);        cx += 78;
+            sweepUpBtn.setBounds(cx, vcy, 40, bH);        cx += 46;
+            placeKnob(sweepRateSlider, sweepRateLbl, cx, vy, kW, kH, lH); cx += kW + 6;
             placeKnob(sweepAmtSlider,  sweepAmtLbl,  cx, vy, kW, kH, lH);
         }
     }
 
     if (ch == 2) {
-        // Wave editor below section header
-        waveEditor->setBounds(8, chY1, W-16, 78);
-        // (vibrato not shown for wave channel — insufficient vertical space)
+        waveEditor->setBounds(14, chY1, W-28, 118);
     }
 
     if (ch == 3) {
         int ny = chY1;
-        noiseShortBtn  .setBounds(8,  ny + (kH-bH)/2, 60, bH);
-        placeKnob(noiseFreqSlider, noiseFreqLbl, 76, ny, kW, kH, lH);
+        noiseShortBtn.setBounds(14, ny + (kH-bH)/2, 72, bH);
+        placeKnob(noiseFreqSlider, noiseFreqLbl, 100, ny, kW, kH, lH);
     }
 
     // ── Arpeggiator ──────────────────────────────────────────────────────────
-    // arpY defined in header as a constant for paint() — we compute it here
-    int ay = arpY + 13 + lH;
-    arpOnBtn     .setBounds(8,   ay + (kH-bH)/2, 52, bH);
-    arpPatternBox.setBounds(64,  ay + (kH-bH)/2, 110, bH);
-    placeKnob(arpSpeedSlider, arpSpeedLbl, 178, ay, kW, kH, lH);
+    int ay = arpY + 22;
+    arpOnBtn.setBounds(14, ay + (kH-bH)/2, 72, bH);
+    arpPatternBox.setBounds(96, ay + (kH-bH)/2, 140, bH);
+    placeKnob(arpSpeedSlider, arpSpeedLbl, 250, ay, kW, kH, lH);
 
     // ── FX ───────────────────────────────────────────────────────────────────
-    // arpY+84 = arpY + 13(arp hdr) + lH + kH + 5(gap) = ARP section bottom + gap
-    int fy2 = arpY + 84 + 13 + lH;
-    placeKnob(crushSlider, crushLbl, 8,       fy2, kW, kH, lH);
-    placeKnob(satSlider,   satLbl,   8+kW+G,  fy2, kW, kH, lH);
+    int fy2 = arpY + 116;
+    placeKnob(crushSlider, crushLbl, 14,       fy2, kW, kH, lH);
+    placeKnob(satSlider,   satLbl,   14+kW+G,  fy2, kW, kH, lH);
 
     // Spotify footer link
-    shoushiLink.setBounds(156, getHeight()-20, 90, 20);
+    shoushiLink.setBounds(174, getHeight()-24, 110, 24);
 }

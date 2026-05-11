@@ -3,11 +3,14 @@
 #include "PluginProcessor.h"
 
 namespace GBC {
-    const juce::Colour bg      { 0xFF0F380F };
-    const juce::Colour dark    { 0xFF306230 };
-    const juce::Colour mid     { 0xFF8BAC0F };
-    const juce::Colour bright  { 0xFF9BBC0F };
-    const juce::Colour accent  { 0xFFB8D418 };
+    const juce::Colour bg      { 0xFF07140F };
+    const juce::Colour panel   { 0xFF0B2417 };
+    const juce::Colour dark    { 0xFF1B4D34 };
+    const juce::Colour mid     { 0xFF89B80D };
+    const juce::Colour bright  { 0xFFC7F20A };
+    const juce::Colour accent  { 0xFF00E5D4 };
+    const juce::Colour hot     { 0xFFFF2D9A };
+    const juce::Colour ink     { 0xFF020705 };
 }
 
 // ── Oscilloscope ──────────────────────────────────────────────────────────────
@@ -135,7 +138,7 @@ private:
     juce::HyperlinkButton shoushiLink;
 
     // ── Layout constant ───────────────────────────────────────────────────────
-    static constexpr int arpY = 439;  // y-start of ARP section header
+    static constexpr int arpY = 532;  // y-start of ARP section header
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChiptuneVSTEditor)
 };
