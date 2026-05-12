@@ -198,17 +198,7 @@ static void makeKnob(juce::Slider& s, juce::Label& lbl,
                      const char* text, juce::Component* parent)
 {
     s.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    s.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 54, 13);
-    s.setNumDecimalPlacesToDisplay(3);
-    s.textFromValueFunction = [](double v) {
-        if (std::abs(v) >= 100.0)
-            return juce::String((int)std::round(v));
-        if (std::abs(v) >= 10.0)
-            return juce::String(v, 1);
-        if (std::abs(v) >= 1.0)
-            return juce::String(v, 2);
-        return juce::String(v, 3);
-    };
+    s.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     parent->addAndMakeVisible(s);
 
     lbl.setText(text, juce::dontSendNotification);
@@ -366,7 +356,7 @@ ChiptuneVSTEditor::ChiptuneVSTEditor(ChiptuneVSTProcessor& p)
 
     updateChannelVisibility();
     startTimerHz(20);
-    setSize(640, 740);
+    setSize(720, 750);
 }
 
 ChiptuneVSTEditor::~ChiptuneVSTEditor() { setLookAndFeel(nullptr); }
@@ -507,7 +497,7 @@ void ChiptuneVSTEditor::resized()
 {
     const int W   = getWidth();
     const int kW  = 58;   // knob slot width
-    const int kH  = 64;   // slider height (knob dial + textbox)
+    const int kH  = 50;   // slider height
     const int lH  = 14;   // label height
     const int bH  = 28;   // button height
     const int G   = 10;   // gap between knob slots
@@ -526,7 +516,7 @@ void ChiptuneVSTEditor::resized()
     osc->setBounds(14, 190, W-28, 42);
 
     // ── ADSR + Vol ─────────────────────────────────────────────────────────────
-    int envLy = 274;
+    int envLy = 278;
     placeKnob(atkSlider, atkLabel, 14 + 0*(kW+G), envLy, kW, kH, lH);
     placeKnob(decSlider, decLabel, 14 + 1*(kW+G), envLy, kW, kH, lH);
     placeKnob(susSlider, susLabel, 14 + 2*(kW+G), envLy, kW, kH, lH);
@@ -544,7 +534,7 @@ void ChiptuneVSTEditor::resized()
             dutyBtn[i].setBounds(14 + i*(dw+2), chY1, dw-1, bH);
 
         // VIB / PWM / SWEEP row
-        int vy = 440;
+        int vy = 444;
         int cx = 14;
         int vcy = vy + (kH - bH) / 2;  // vertical centre for buttons
 
@@ -575,13 +565,13 @@ void ChiptuneVSTEditor::resized()
     }
 
     // ── Arpeggiator ──────────────────────────────────────────────────────────
-    int ay = arpY + 22;
+    int ay = arpY + 24;
     arpOnBtn.setBounds(14, ay + (kH-bH)/2, 72, bH);
     arpPatternBox.setBounds(96, ay + (kH-bH)/2, 140, bH);
     placeKnob(arpSpeedSlider, arpSpeedLbl, 250, ay, kW, kH, lH);
 
     // ── FX ───────────────────────────────────────────────────────────────────
-    int fy2 = arpY + 116;
+    int fy2 = arpY + 114;
     placeKnob(crushSlider, crushLbl, 14,       fy2, kW, kH, lH);
     placeKnob(satSlider,   satLbl,   14+kW+G,  fy2, kW, kH, lH);
 
