@@ -80,6 +80,9 @@ private:
     // ── Oscilloscope ──────────────────────────────────────────────────────────
     std::unique_ptr<OscilloscopeComponent> osc;
 
+    // ── Drum kit ──────────────────────────────────────────────────────────────
+    juce::TextButton drumBtn[5];
+
     // ── ADSR + Vol ────────────────────────────────────────────────────────────
     juce::Slider atkSlider, decSlider, susSlider, relSlider, volSlider;
     juce::Label  atkLabel,  decLabel,  susLabel,  relLabel,  volLabel;
@@ -138,7 +141,7 @@ private:
     juce::HyperlinkButton shoushiLink;
 
     // ── Layout constant ───────────────────────────────────────────────────────
-    static constexpr int arpY = 532;  // y-start of ARP section header
+    static constexpr int arpY = 604;  // y-start of ARP section header
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChiptuneVSTEditor)
 };

@@ -263,6 +263,24 @@ ChiptuneVSTEditor::ChiptuneVSTEditor(ChiptuneVSTProcessor& p)
         addAndMakeVisible(chBtn[i]);
     }
 
+    // Drum kit pads
+    const char* drumNames[]   = { "KICK", "SNARE", "HAT", "NOISE", "THUMP" };
+    const char* presetNames[] = { "Kick", "Snare", "Hi Hat", "Noise Perc", "Wave Thump" };
+    for (int i = 0; i < 5; ++i) {
+        drumBtn[i].setButtonText(drumNames[i]);
+        drumBtn[i].onClick = [this, name = presetNames[i]] {
+            for (int presetIndex = 0; presetIndex < NUM_PRESETS; ++presetIndex) {
+                if (std::strcmp(PRESETS[presetIndex].name, name) == 0) {
+                    proc.loadPreset(presetIndex);
+                    presetBox.setSelectedItemIndex(presetIndex, juce::dontSendNotification);
+                    updateChannelVisibility();
+                    break;
+                }
+            }
+        };
+        addAndMakeVisible(drumBtn[i]);
+    }
+
     // ADSR + Vol
     makeKnob(atkSlider, atkLabel, "ATK", this);
     makeKnob(decSlider, decLabel, "DEC", this);
@@ -356,7 +374,7 @@ ChiptuneVSTEditor::ChiptuneVSTEditor(ChiptuneVSTProcessor& p)
 
     updateChannelVisibility();
     startTimerHz(20);
-    setSize(720, 750);
+    setSize(720, 820);
 }
 
 ChiptuneVSTEditor::~ChiptuneVSTEditor() { setLookAndFeel(nullptr); }
@@ -464,17 +482,18 @@ void ChiptuneVSTEditor::paint(juce::Graphics& g)
 
     hdr(44,  16, "PRESET");
     hdr(110, 16, "CHANNEL");
-    hdr(162, 16, "OSCILLOSCOPE");
-    hdr(246, 16, "ENVELOPE + VOLUME");
+    hdr(162, 16, "DRUM KIT");
+    hdr(230, 16, "OSCILLOSCOPE");
+    hdr(318, 16, "ENVELOPE + VOLUME");
 
     int ch = (int)*proc.apvts.getRawParameterValue("channelType");
 
     if (ch == 0 || ch == 1) {
-        hdr(360, 16, "DUTY CYCLE");
-        hdr(416, 16, ch == 0 ? "VIBRATO / PWM / SWEEP" : "VIBRATO / PWM");
+        hdr(432, 16, "DUTY CYCLE");
+        hdr(488, 16, ch == 0 ? "VIBRATO / PWM / SWEEP" : "VIBRATO / PWM");
     }
-    if (ch == 2) hdr(360, 16, "WAVE TABLE - DRAW WITH MOUSE");
-    if (ch == 3) hdr(360, 16, "NOISE CHANNEL");
+    if (ch == 2) hdr(432, 16, "WAVE TABLE - DRAW WITH MOUSE");
+    if (ch == 3) hdr(432, 16, "NOISE CHANNEL");
 
     hdr(arpY,    16, "ARPEGGIATOR");
     hdr(arpY+94, 16, "FX - BITCRUSH / SATURATION");
@@ -512,11 +531,16 @@ void ChiptuneVSTEditor::resized()
     for (int i = 0; i < 4; ++i)
         chBtn[i].setBounds(14 + i*(cw+2), 132, cw-1, 30);
 
+    // ── Drum kit pads ─────────────────────────────────────────────────────────
+    int drumW = (W - 38) / 5;
+    for (int i = 0; i < 5; ++i)
+        drumBtn[i].setBounds(14 + i*(drumW+2), 188, drumW-1, 30);
+
     // ── Oscilloscope ───────────────────────────────────────────────────────────
-    osc->setBounds(14, 190, W-28, 42);
+    osc->setBounds(14, 258, W-28, 46);
 
     // ── ADSR + Vol ─────────────────────────────────────────────────────────────
-    int envLy = 278;
+    int envLy = 350;
     placeKnob(atkSlider, atkLabel, 14 + 0*(kW+G), envLy, kW, kH, lH);
     placeKnob(decSlider, decLabel, 14 + 1*(kW+G), envLy, kW, kH, lH);
     placeKnob(susSlider, susLabel, 14 + 2*(kW+G), envLy, kW, kH, lH);
@@ -525,7 +549,7 @@ void ChiptuneVSTEditor::resized()
 
     // ── Channel-specific content ──────────────────────────────────────────────
     int ch   = (int)*proc.apvts.getRawParameterValue("channelType");
-    int chY1 = 384;
+    int chY1 = 456;
 
     if (ch == 0 || ch == 1) {
         // Duty buttons
@@ -534,7 +558,7 @@ void ChiptuneVSTEditor::resized()
             dutyBtn[i].setBounds(14 + i*(dw+2), chY1, dw-1, bH);
 
         // VIB / PWM / SWEEP row
-        int vy = 444;
+        int vy = 516;
         int cx = 14;
         int vcy = vy + (kH - bH) / 2;  // vertical centre for buttons
 
