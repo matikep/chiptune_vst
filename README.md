@@ -4,6 +4,8 @@ Un sintetizador chiptune hecho con JUCE, pensado para sacar sonidos de Game Boy 
 
 Tiene los cuatro sabores clásicos del hardware: dos pulsos, wave channel y ruido. No intenta ser una emulación religiosa; apunta más a ese punto entretenido donde el sonido es pequeño, filoso y musical antes de ponerse demasiado correcto.
 
+![ChiptuneVST interface](screenshot.png)
+
 ## Qué trae
 
 - Sintetizador MIDI con hasta 8 voces.
@@ -74,4 +76,3 @@ Proyecto personal, versión `1.0.0`. Funciona como instrumento, pero todavía ha
 ## Licencia
 
 Todavía no hay licencia definida. Si quieres usarlo en algo más serio que probarlo, abre un issue o escribe antes.
-
